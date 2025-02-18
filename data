@@ -1,0 +1,172 @@
+1. 使用第三方金融数据API
+优点：数据质量高，更新及时，接口易用。
+
+常用API：
+
+Tushare（免费+付费）：提供中国A股的历史和实时数据。
+
+官网：https://tushare.pro/
+
+安装：pip install tushare
+
+示例代码：
+
+python
+Copy
+import tushare as ts
+
+# 设置Token（需注册获取）
+ts.set_token('your_token')
+pro = ts.pro_api()
+
+# 获取日线数据
+df = pro.daily(ts_code='000001.SZ', start_date='20220101', end_date='20221231')
+print(df)
+AKShare（免费）：提供中国A股、期货、基金等数据。
+
+官网：https://www.akshare.xyz/
+
+安装：pip install akshare
+
+示例代码：
+
+python
+Copy
+import akshare as ak
+
+# 获取A股日线数据
+df = ak.stock_zh_a_hist(symbol="000001", period="daily", start_date="20220101", end_date="20221231")
+print(df)
+JoinQuant（免费+付费）：提供量化研究所需的数据。
+
+官网：https://www.joinquant.com/
+
+示例代码（需在JoinQuant平台运行）：
+
+python
+Copy
+# 获取平安银行(000001)的日线数据
+df = get_price('000001.XSHE', start_date='2022-01-01', end_date='2022-12-31', frequency='daily')
+print(df)
+Wind（付费）：金融数据终端，提供Python接口。
+
+官网：https://www.wind.com.cn/
+
+安装：pip install WindPy
+
+示例代码：
+
+python
+Copy
+from WindPy import w
+
+w.start()
+data = w.wsd("000001.SZ", "open,high,low,close,volume", "2022-01-01", "2022-12-31")
+print(data)
+2. 使用爬虫从财经网站抓取
+优点：免费，适合小规模数据。
+
+缺点：需要处理反爬虫机制，数据质量可能不稳定。
+
+常用网站：
+
+新浪财经：https://finance.sina.com.cn/
+
+东方财富网：https://www.eastmoney.com/
+
+示例代码（使用requests和pandas抓取新浪财经数据）：
+
+python
+Copy
+import requests
+import pandas as pd
+
+# 获取股票日线数据
+url = "https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20_sh600000_10_20220101_20221231=/CN_MarketDataService.getKLineData"
+params = {
+    "symbol": "sh600000",  # 股票代码
+    "scale": "240",       # 时间周期（240分钟为日线）
+    "datalen": "1000",     # 数据长度
+}
+response = requests.get(url, params=params)
+data = response.text
+
+# 解析数据
+data = data.split('=')[1].strip('();')
+df = pd.read_json(data)
+print(df)
+3. 使用本地数据库或文件
+优点：适合长期存储和快速访问。
+
+方法：
+
+从API或爬虫获取数据后，存储到本地数据库（如SQLite、MySQL）或文件（如CSV、Parquet）。
+
+示例代码（存储到CSV）：
+
+python
+Copy
+import pandas as pd
+
+# 假设df是从API获取的数据
+df.to_csv('stock_data.csv', index=False)
+示例代码（从CSV读取）：
+
+python
+Copy
+df = pd.read_csv('stock_data.csv')
+print(df)
+4. 使用量化平台
+优点：集成数据、回测、交易功能，适合量化研究。
+
+常用平台：
+
+RiceQuant（免费+付费）：https://www.ricequant.com/
+
+JoinQuant（免费+付费）：https://www.joinquant.com/
+
+掘金量化（免费+付费）：https://www.myquant.cn/
+
+示例代码（在JoinQuant平台获取数据）：
+
+python
+Copy
+# 获取平安银行(000001)的日线数据
+df = get_price('000001.XSHE', start_date='2022-01-01', end_date='2022-12-31', frequency='daily')
+print(df)
+5. 使用开源数据集
+优点：免费，适合学习和研究。
+
+常用数据集：
+
+Yahoo Finance（通过yfinance库获取）：
+
+安装：pip install yfinance
+
+示例代码：
+
+python
+Copy
+import yfinance as yf
+
+# 获取贵州茅台(600519.SS)的日线数据
+df = yf.download("600519.SS", start="2022-01-01", end="2022-12-31")
+print(df)
+Quandl（部分免费）：
+
+官网：https://www.quandl.com/
+
+安装：pip install quandl
+
+示例代码：
+
+python
+Copy
+import quandl
+
+# 设置API Key
+quandl.ApiConfig.api_key = 'your_api_key'
+
+# 获取A股数据
+df = quandl.get('YAHOO/INDEX_SSEC', start_date='2022-01-01', end_date='2022-12-31')
+print(df)
