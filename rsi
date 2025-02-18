@@ -1,0 +1,51 @@
+#RSI量化交易实战：代码示例
+#https://blog.alltick.co/rsi-indicator/
+
+import pandas as pd
+import requests
+import ta
+import time
+# 获取Alltick API的实时行情数据函数
+def get_realtime_data(stock_code):
+    # 使用Alltick API获取实时数据
+    url = f"https://api.alltick.io/v1/quotes/{stock_code}"
+    response = requests.get(url)
+    data = response.json()
+    return data
+# RSI策略
+def rsi_strategy(data, rsi_period=14, rsi_oversold=30, rsi_overbought=70):
+    data['RSI'] = ta.momentum.rsi(data['close'], window=rsi_period)
+    data['Signal'] = 0
+    data['Signal'][data['RSI'] < rsi_oversold] = 1  # 买入信号
+    data['Signal'][data['RSI'] > rsi_overbought] = -1  # 卖出信号
+    return data
+# 模拟交易函数
+def simulate_trading(stock_code, interval=60):
+    while True:
+        data = get_realtime_data(stock_code)
+        
+        # 返回的数据包含timestamp和close价格
+        df = pd.DataFrame(data)
+        
+        # 计算RSI策略
+        df = rsi_strategy(df)
+        
+        # 获取最新的交易信号
+        latest_signal = df['Signal'].iloc[-1]
+        
+        # 执行交易逻辑
+        if latest_signal == 1:
+            print("买入信号，执行买入操作")
+            # 这里添加实际的买入代码，例如调用交易API
+        elif latest_signal == -1:
+            print("卖出信号，执行卖出操作")
+            # 这里添加实际的卖出代码，例如调用交易API
+        else:
+            print("无交易信号")
+        
+        # 等待一段时间后再次运行
+        time.sleep(interval)
+# 主函数
+if __name__ == "__main__":
+    stock_code = "00941.HK"  # 以港股中国移动为例
+    simulate_trading(stock_code)
